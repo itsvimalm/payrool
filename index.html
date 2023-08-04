@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<body>
+<div ng-app="myApp" ng-controller="myCtrl">
+Percentage : <input type="number" ng-model="hike"/>
+<button ng-click="hikeSal()">Hike the salary</button>
+<br>
+Hike by dept : <br>
+<div class="checkbox" ng-repeat="dept in departments track by $index">
+<label>
+	<input type="checkbox" ng-model="dept.selected" ng-click="sortEmp(dept.id)"/> {{dept.name}}
+</label>
+</div>
+<table border='1'>
+	<thead>
+	<tr>
+	<th>Name</th>
+<th>Dept</th>
+<th>Hike Percentage</th>
+<th>Hike Amount</th>
+<th>Salary</th>
+</tr>
+<tr ng-repeat="emp in empFiltered track by $index">
+	<td>{{emp.name}}</td>
+<td>{{emp.dept}}</td>
+<td>{{emp.hike}}</td>
+<td>{{emp.hikeAmt}}</td>
+<td>{{emp.sal | currency: '&#8360; '}}</td>
+</tr>
+</thead>
+</table>
+</div>
+</body>
+<script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope) {
+
+	$scope.filteredDept = [];
+	
+    $scope.employees = [
+	{'id':1, 'dept': 'IT', 'sal': 5000, 'name': 'ramesh'},
+        {'id':2, 'dept': 'IT', 'sal': 4000, 'name': 'Girish'},
+        {'id':3, 'dept': 'Management', 'sal': 10000, 'name': 'Kartik'},
+        {'id':4, 'dept': 'Marketing', 'sal': 8000, 'name': 'Shenoy'},
+        {'id':5, 'dept': 'Marketing', 'sal': 7000, 'name': 'Darvik'},
+        {'id':6, 'dept': 'Management', 'sal': 17000, 'name': 'Ravi Kumar'}
+    ];
+    $scope.empFiltered = $scope.employees;
+    $scope.departments = [
+	{'id':1, 'name':'IT','selected':false},
+        {'id':2, 'name':'Management','selected':false},
+        {'id':3, 'name':'Marketing','selected':false}
+    ];
+
+    $scope.sortEmp = function(dept_id){
+	$scope.bool = $scope.departments.filter(function(e){
+	if(e.id === dept_id){
+                var idx = $scope.filteredDept.indexOf(e.name,0);
+                if(idx === -1){
+	$scope.filteredDept.push(e.name);
+                    $scope.filterEmpList();
+                    return 0;
+                }
+                else {
+	$scope.filteredDept.splice(idx,1);
+                    $scope.filterEmpList();
+                    return 0;
+                }
+            }
+        });
+    };
+    $scope.filterEmpList = function(){
+	$scope.filteredData = [];
+		if($scope.filteredDept.length !==0){
+	$scope.empFiltered = [];
+	angular.forEach($scope.filteredDept, function(val,key){
+	$scope.filteredData = $scope.employees.filter(function(e){
+                    if(e.dept === val){
+                     return e;
+                    } 
+                });
+				angular.forEach($scope.filteredData, function(v,k){
+	$scope.empFiltered.push(v);
+                });               
+            });
+        }
+        else{
+	$scope.empFiltered = $scope.employees;
+        }    	
+    };
+    $scope.hikeSal = function(){
+	var arr = [];
+        arr = $scope.empFiltered.map(function(e){
+	if(e.hike === undefined){
+	e.hike = 0;
+            }
+	e.hike = parseInt(e.hike) + $scope.hike;
+            e.hikeAmt = e.sal * ($scope.hike * 0.01);
+	e.sal += e.sal * ($scope.hike * 0.01);
+            //return e;
+        });
+    };
+});
+
+</script>
